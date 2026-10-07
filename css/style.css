@@ -70,3 +70,25 @@ body { display: flex; align-items: center; justify-content: center; }
   pointer-events: auto; touch-action: none; }
 #btn-pause { position: absolute; right: 3%; top: 4%; background: #0b1020aa; border: 1px solid #3a4565; color: #f3ead8;
   border-radius: .3em; padding: .2em .5em; font-size: .8em; pointer-events: auto; }
+
+/* bölüm başlığı */
+#banner { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); pointer-events: none; white-space: nowrap;
+  font-family: Georgia, serif; font-size: 2.4em; color: #ffe7a8; text-shadow: 0 0 .5em #ffb84d88, 0 3px 0 #3a2508;
+  animation: banner 2.6s ease-in-out forwards; }
+#banner[hidden] { display: none; }
+@keyframes banner { 0% { opacity: 0; letter-spacing: .3em; } 20%, 75% { opacity: 1; letter-spacing: .05em; } 100% { opacity: 0; } }
+
+/* bölüm seçimi */
+#chapter-btns:empty { display: none; }
+.panel button.ch { min-width: 0; font-size: .85em; padding: .3em .9em; }
+.panel button.ch.done::after { content: " ✓"; color: #7ee787; }
+.panel button[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+
+/* telefon dik tutulunca: yan çevir uyarısı */
+#rotate { display: none; position: fixed; inset: 0; z-index: 100; background: #05070f; color: #f3ead8;
+  flex-direction: column; align-items: center; justify-content: center; gap: 22px; text-align: center; padding: 24px;
+  font: 600 18px "Trebuchet MS", system-ui, sans-serif; }
+#rotate .phone { width: 46px; height: 80px; border: 4px solid #ffd84d; border-radius: 9px; position: relative; animation: rot 2.2s ease-in-out infinite; }
+#rotate .phone::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 10px; height: 3px; margin-left: -5px; background: #ffd84d; border-radius: 2px; }
+@keyframes rot { 0%, 25% { transform: rotate(0); } 55%, 100% { transform: rotate(-90deg); } }
+@media (orientation: portrait) and (pointer: coarse) { #rotate { display: flex; } }

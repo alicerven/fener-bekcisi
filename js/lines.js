@@ -25,5 +25,26 @@ FB.LINES = {
   "kayip2": {"who": "narrator", "tr": "Oyun bitti.", "en": "Game over."},
   "parca": {"who": "narrator", "tr": "Bir mercek parçası buldun!", "en": "You found a lens shard!"},
   "hepsi": {"who": "narrator", "tr": "Tüm parçalar toplandı! Nuri'ye dön.", "en": "All shards collected! Return to Nuri."},
-  "vurus": {"who": "narrator", "tr": "Bir Gölge sana dokundu!", "en": "A Shadow touched you!"}
+  "vurus": {"who": "narrator", "tr": "Bir Gölge sana dokundu!", "en": "A Shadow touched you!"},
+  "yakalandin": {"who": "narrator", "tr": "Bir Gölge seni yakaladı ve diğerlerini çağırdı! Ama sen sıvışmayı başardın.", "en": "A Shadow caught you and called the others! But you slipped away."},
+  "alev_nuri": {"who": "nuri", "tr": "Dur, önce şunları buradan uzaklaştırayım! Ama bu numarayı yalnızca bir kez yapabilirim.", "en": "Hold on, let me drive them away first! But I can only pull this trick once."},
+  "alev_anlatici": {"who": "narrator", "tr": "Nuri fenerinin alevini sonuna kadar açtı. Gölgeler ışıktan kaçıp dağıldı.", "en": "Nuri turned his lantern up to a full blaze. The Shadows fled from the light."},
+
+  "b2_intro1": {"who": "narrator", "tr": "Fener yeniden parlıyor. Ama limanda ışıklar hâlâ sönük.", "en": "The lighthouse shines again. But down at the harbor, the lights are still out."},
+  "b2_intro2": {"who": "narrator", "tr": "Nuri seni iskelenin başında bekliyor.", "en": "Nuri is waiting for you at the start of the pier."},
+  "b2_n0_1": {"who": "nuri", "tr": "Geldin! Balıkçı tekneleri bu karanlıkta limanı bulamıyor.", "en": "You came! The fishing boats can't find the harbor in this darkness."},
+  "b2_n0_2": {"who": "nuri", "tr": "Liman fenerinin yağı bitti. Depodan çalınan üç yağ kandilini bulmalısın.", "en": "The harbor light has run out of oil. You need to find the three oil lamps stolen from the storehouse."},
+  "b2_n0_3": {"who": "nuri", "tr": "Sokak lambalarını yak. Gölgeler ışığa giremez, lambaların altında güvendesin.", "en": "Light the street lamps. The Shadows can't step into the light. Under a lamp, you're safe."},
+  "b2_n0_4": {"who": "narrator", "tr": "Görev: üç yağ kandilini topla.", "en": "Quest: collect the three oil lamps."},
+  "b2_n1": {"who": "nuri", "tr": "Kandilleri bulmadan liman fenerini yakamayız. Lambalar senin dostun!", "en": "We can't light the harbor beacon without the oil. The street lamps are your friends!"},
+  "b2_n2_1": {"who": "nuri", "tr": "Üç kandil de burada! Şimdi iskelenin ucundaki liman fenerine git.", "en": "All three lamps are here! Now go to the harbor beacon at the end of the pier."},
+  "b2_n2_2": {"who": "narrator", "tr": "Görev güncellendi: liman fenerini yak.", "en": "Quest updated: light the harbor beacon."},
+  "b2_n3": {"who": "nuri", "tr": "Liman feneri seni bekliyor!", "en": "The harbor beacon is waiting for you!"},
+  "b2_lamba": {"who": "narrator", "tr": "Lamba yandı. Gölgeler bu ışığa giremez.", "en": "Lamp lit. The Shadows can't enter this light."},
+  "b2_kandil": {"who": "narrator", "tr": "Bir yağ kandili buldun!", "en": "You found an oil lamp!"},
+  "b2_hepsi": {"who": "narrator", "tr": "Tüm kandiller toplandı! Nuri'ye dön.", "en": "All oil lamps collected! Return to Nuri."},
+  "b2_kilit": {"who": "narrator", "tr": "Liman feneri boş. Önce yağ kandillerini bul.", "en": "The harbor beacon is empty. Find the oil lamps first."},
+  "b2_l1": {"who": "narrator", "tr": "Liman feneri parladı! Tekneler eve dönüyor.", "en": "The harbor beacon blazes to life! The boats are coming home."},
+  "b2_l2": {"who": "narrator", "tr": "Kasaba artık tamamen aydınlık. Gölgeler bir daha dönmeyecek.", "en": "The whole town is lit now. The Shadows won't be coming back."},
+  "b2_l3": {"who": "narrator", "tr": "İkinci bölüm tamamlandı. Son.", "en": "Chapter two complete. The end."}
 };

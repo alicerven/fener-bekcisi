@@ -23,6 +23,10 @@ lines = json.loads(re.search(r"FB\.LINES\s*=\s*(\{.*\});", src, re.S).group(1))
 # Konuşmacı → (Kokoro sesi, aksan, hız)
 VOICES = {"nuri": ("bm_george", "en-gb", 0.92), "narrator": ("af_heart", "en-us", 0.95)}
 
+import sys
+# varsayılan: yalnızca eksik klipleri üret; --hepsi ile tümünü yeniden üret
+lines = {k: v for k, v in lines.items() if "--hepsi" in sys.argv or not (OUT / f"{k}.mp3").exists()}
+print(f"{len(lines)} klip üretilecek")
 tts = Kokoro(str(MODEL / "kokoro-v1.0.int8.onnx"), str(MODEL / "voices-v1.0.bin"))
 for i, (key, line) in enumerate(lines.items(), 1):
     voice, lang, speed = VOICES[line["who"]]

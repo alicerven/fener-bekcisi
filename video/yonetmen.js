@@ -73,7 +73,7 @@
     [30.0, () => { showCard('black'); }],
     [30.3, () => {
       showCard(null); f.setAI(false); if (G.dialog) { G.dialog = null; }
-      G.shards.forEach((s) => { s.taken = true; }); G.got = 3; G.stage = 3; auto.targets = [];
+      G.items.forEach((s) => { s.taken = true; }); G.got = 3; G.stage = 3; auto.targets = [];
       Object.assign(G.player, W.C(22, 2)); f.I.keys.clear();
       say('…find all three lens shards, and <b>light the lighthouse</b>');
     }],

@@ -23,7 +23,7 @@ window.FB = window.FB || {};
   /* ---------------- prosedürel sprite'lar ---------------- */
   // Renklendirilmiş hayalet (Gölge) — her durum için bir renk
   FB.makeGhosts = () => {
-    const cols = { DEVRIYE: '#7b4dff', KOVALA: '#ff3355', ARA: '#ff9a2e', DON: '#4d8dff' };
+    const cols = { DEVRIYE: '#7b4dff', KOVALA: '#ff3355', ARA: '#ff9a2e', DON: '#4d8dff', KAC: '#bfe9ff', TOPLAN: '#ff6a3d' };
     const out = {};
     for (const [k, c] of Object.entries(cols)) {
       const cv = canvas(T, T), g = cv.getContext('2d');
@@ -65,6 +65,52 @@ window.FB = window.FB || {};
     px(7, 0, '#2a1d24'); px(8, 0, '#2a1d24');
     return cv;
   };
+  // Yağ kandili (9×11): bölüm 2'nin toplanan nesnesi
+  FB.makeOil = () => {
+    const cv = canvas(9, 11), g = cv.getContext('2d');
+    const P = ['...aaa...', '..a...a..', '...bbb...', '..bcccb..', '.bccdccb.', '.bcdccccb', '.bcccccb.', '.bcccccb.', '..bcccb..', '...bbb...'];
+    const C = { a: '#6b4420', b: '#3a2208', c: '#e0902a', d: '#ffe08a' };
+    P.forEach((r, y) => [...r].forEach((ch, x) => { if (C[ch]) { g.fillStyle = C[ch]; g.fillRect(x, y + 1, 1, 1); } }));
+    return cv;
+  };
+  // Sokak lambası (16×16): direk + fener başlığı; lit = yanıyor mu
+  FB.makeLampPost = (lit) => {
+    const cv = canvas(16, 16), g = cv.getContext('2d'), px = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+    px(7, 6, 2, 9, '#2a2f3a'); px(7, 6, 1, 9, '#4a5263');      // direk
+    px(5, 14, 6, 2, '#2a2f3a');                                 // taban
+    px(5, 1, 6, 1, '#1d222b'); px(4, 2, 8, 1, '#1d222b');       // başlık
+    px(5, 3, 6, 3, '#1d222b');                                  // camın çerçevesi
+    px(6, 3, 4, 3, lit ? '#ffd84d' : '#3a4256');                // cam
+    if (lit) px(7, 4, 2, 1, '#ffffff');
+    px(6, 6, 4, 1, '#1d222b');
+    return cv;
+  };
+  // Parke taşı yol (16×16), iki varyasyon
+  FB.makeCobble = (seed) => {
+    const cv = canvas(16, 16), g = cv.getContext('2d');
+    g.fillStyle = '#3d4250'; g.fillRect(0, 0, 16, 16);
+    let s = seed * 9301 + 49297; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+    const rows = [[0, 5], [5, 5], [10, 6]];
+    rows.forEach(([y, h], ri) => {
+      let x = ri % 2 ? -3 : 0;
+      while (x < 16) {
+        const w = 4 + Math.floor(rnd() * 3), sh = 0x5a + Math.floor(rnd() * 18);
+        g.fillStyle = `rgb(${sh},${sh + 4},${sh + 14})`; g.fillRect(x + 1, y + 1, w - 1, h - 1);
+        g.fillStyle = 'rgba(255,255,255,.10)'; g.fillRect(x + 1, y + 1, w - 1, 1);
+        x += w;
+      }
+    });
+    return cv;
+  };
+  // İskele tahtası (16×16)
+  FB.makePier = () => {
+    const cv = canvas(16, 16), g = cv.getContext('2d');
+    g.fillStyle = '#7a5230'; g.fillRect(0, 0, 16, 16);
+    for (let y = 0; y < 16; y += 4) { g.fillStyle = '#5e3d22'; g.fillRect(0, y + 3, 16, 1); g.fillStyle = '#8f6440'; g.fillRect(0, y, 16, 1); }
+    g.fillStyle = '#3e2814'; g.fillRect(0, 0, 1, 16); g.fillRect(15, 0, 1, 16);
+    g.fillStyle = '#c9a26b'; [[3, 1], [11, 5], [6, 9], [12, 13]].forEach(([x, y]) => g.fillRect(x, y, 1, 1)); // çiviler
+    return cv;
+  };
   // 3×5 piksel simgeler: ünlem ve soru işareti
   FB.drawGlyph = (ctx, ch, x, y, color) => {
     const G = { '!': ['.x.', '.x.', '.x.', '...', '.x.'], '?': ['xx.', '..x', '.x.', '...', '.x.'] }[ch];
@@ -75,9 +121,16 @@ window.FB = window.FB || {};
   /* ---------------- ses ---------------- */
   FB.Audio = (() => {
     let on = true, lang = 'tr', cur = null;
-    function play(key) { if (!on || !key) return; stop(); const a = new Audio(`audio/${lang}/${key}.mp3`); cur = a; a.play().catch(() => {}); }
+    // konuşma sırasında müziğin sesini kıs (FB.Synth varsa)
+    const duck = (v) => { if (FB.Synth) FB.Synth.duck(v); };
+    function play(key) {
+      if (!on || !key) return; stop();
+      const a = new Audio(`audio/${lang}/${key}.mp3`); cur = a;
+      a.onended = () => { if (cur === a) { cur = null; duck(false); } };
+      duck(true); a.play().catch(() => { duck(false); });
+    }
     function playIfIdle(key) { if (cur && !cur.paused && !cur.ended) return; play(key); }
-    function stop() { if (cur) { cur.pause(); cur = null; } }
+    function stop() { if (cur) { cur.pause(); cur = null; } duck(false); }
     return { play, playIfIdle, stop, setLang(l) { lang = l; }, setOn(v) { on = v; if (!v) stop(); }, get on() { return on; } };
   })();
 
@@ -126,34 +179,122 @@ window.FB = window.FB || {};
 
   /* ---------------- dünya ---------------- */
   FB.World = (() => {
-    const M = FB.LEVEL.map, ROWS = M.length, COLS = M[0].length;
-    const wall = (x, y) => y < 0 || y >= ROWS || x < 0 || x >= COLS || M[y][x] !== '.';
+    // Bölümler arasında değişen durum. Bütün bölümler 24×14 karo.
+    let M = FB.LEVELS[0].map, ROWS = M.length, COLS = M[0].length;
+    const WALK = new Set(['.', '=', ':']);
+    // ışığı ve görüşü kesen karolar (deniz yürünemez ama görüşü kesmez)
+    const OPAQUE = new Set(['T', 'B', 'F', 'H', 'G', 'O']);
+    const opaque = (x, y) => y < 0 || y >= ROWS || x < 0 || x >= COLS || OPAQUE.has(M[y][x]);
+    let forbidden = new Uint8Array(ROWS * COLS); // yanan lambaların ışığı: Gölgeler giremez
+    const wall = (x, y) => y < 0 || y >= ROWS || x < 0 || x >= COLS || !WALK.has(M[y][x]);
+    const isForbidden = (x, y) => x >= 0 && y >= 0 && x < COLS && y < ROWS && forbidden[y * COLS + x] === 1;
+    const enemyWall = (x, y) => wall(x, y) || isForbidden(x, y);
     const solidAt = (x, y) => wall(Math.floor(x / T), Math.floor(y / T));
-    const collide = (x, y, r) => solidAt(x - r, y - r) || solidAt(x + r - 0.01, y - r) || solidAt(x - r, y + r - 0.01) || solidAt(x + r - 0.01, y + r - 0.01);
     const C = (cx, cy) => ({ x: cx * T + T / 2, y: cy * T + T / 2 });
     const tileOf = (o) => [Math.floor(o.x / T), Math.floor(o.y / T)];
     const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+    // Gölgeler ışıklı karolara giremez; ama ışık tam üstlerinde yanarsa dışarı kaçabilsinler diye o anki karo hariç tutulur
+    function blockedAt(o, px, py) {
+      const tx = Math.floor(px / T), ty = Math.floor(py / T);
+      if (wall(tx, ty)) return true;
+      if (!o.enemy) return false;
+      const [ox, oy] = tileOf(o);
+      return isForbidden(tx, ty) && !isForbidden(ox, oy);
+    }
+    const collide = (o, x, y) => { const r = o.r; return blockedAt(o, x - r, y - r) || blockedAt(o, x + r - 0.01, y - r) || blockedAt(o, x - r, y + r - 0.01) || blockedAt(o, x + r - 0.01, y + r - 0.01); };
     // eksen eksen hareket; köşeye takılınca karo merkezine doğru hafifçe kaydır (köşe yardımı)
     function move(o, dx, dy) {
       let mx = false, my = false;
-      if (dx && !collide(o.x + dx, o.y, o.r)) { o.x += dx; mx = true; }
-      if (dy && !collide(o.x, o.y + dy, o.r)) { o.y += dy; my = true; }
+      if (dx && !collide(o, o.x + dx, o.y)) { o.x += dx; mx = true; }
+      if (dy && !collide(o, o.x, o.y + dy)) { o.y += dy; my = true; }
       const s = Math.max(Math.abs(dx), Math.abs(dy));
-      if (dx && !mx && !dy) { const cy = Math.floor(o.y / T) * T + T / 2, d = cy - o.y; if (Math.abs(d) > 0.1 && !collide(o.x + dx, cy, o.r)) o.y += Math.sign(d) * Math.min(Math.abs(d), s); }
-      if (dy && !my && !dx) { const cx = Math.floor(o.x / T) * T + T / 2, d = cx - o.x; if (Math.abs(d) > 0.1 && !collide(cx, o.y + dy, o.r)) o.x += Math.sign(d) * Math.min(Math.abs(d), s); }
+      if (dx && !mx && !dy) { const cy = Math.floor(o.y / T) * T + T / 2, d = cy - o.y; if (Math.abs(d) > 0.1 && !collide(o, o.x + dx, cy)) o.y += Math.sign(d) * Math.min(Math.abs(d), s); }
+      if (dy && !my && !dx) { const cx = Math.floor(o.x / T) * T + T / 2, d = cx - o.x; if (Math.abs(d) > 0.1 && !collide(o, cx, o.y + dy)) o.x += Math.sign(d) * Math.min(Math.abs(d), s); }
       return mx || my;
     }
-    function los(a, b) { const d = dist(a, b), n = Math.ceil(d / 3); for (let i = 1; i < n; i++) { const t = i / n; if (solidAt(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t)) return false; } return true; }
-    function bfs(sx, sy, tx, ty) {
+    function los(a, b) { const d = dist(a, b), n = Math.ceil(d / 3); for (let i = 1; i < n; i++) { const t = i / n; if (opaque(Math.floor((a.x + (b.x - a.x) * t) / T), Math.floor((a.y + (b.y - a.y) * t) / T))) return false; } return true; }
+
+    /* Görünürlük poligonu (2D gölgeler): (lx,ly)'deki ışığın r yarıçapında gördüğü alan.
+       1) r içindeki opak karoların yalnızca ışığa bakan ve açık alana komşu kenarlarını topla, aynı hizadakileri birleştir
+       2) her kenar ucuna (±küçük açı) ve çevre kutusunun köşelerine ışın gönder, en yakın kesişimi bul
+       3) noktaları açıya göre sırala. Kesişimler duvarın 3 px içine uzatılır: ışığa bakan duvar yüzleri aydınlık görünür. */
+    function visPoly(lx, ly, r) {
+      const x0 = Math.max(0, Math.floor((lx - r) / T)), x1 = Math.min(COLS - 1, Math.floor((lx + r) / T));
+      const y0 = Math.max(0, Math.floor((ly - r) / T)), y1 = Math.min(ROWS - 1, Math.floor((ly + r) / T));
+      const segs = [];
+      // yatay kenarlar (satır satır birleştirerek)
+      for (let y = y0; y <= y1 + 1; y++) {
+        let runA = -1, runB = -1;
+        const flush = (ex) => { if (runA >= 0) segs.push([runA * T, y * T, ex * T, y * T]); runA = -1; };
+        for (let x = x0; x <= x1 + 1; x++) {
+          // üst kenar: (x,y) opak, (x,y-1) açık ve ışık yukarıda  |  alt kenar: (x,y-1) opak, (x,y) açık ve ışık aşağıda
+          const top = x <= x1 && y <= y1 && opaque(x, y) && !opaque(x, y - 1) && ly < y * T;
+          const bot = x <= x1 && y - 1 >= y0 && opaque(x, y - 1) && !opaque(x, y) && ly > y * T;
+          const on = top || bot;
+          if (on && runA < 0) runA = x; if (!on && runA >= 0) flush(x);
+        }
+        flush(x1 + 1);
+      }
+      // dikey kenarlar (sütun sütun birleştirerek)
+      for (let x = x0; x <= x1 + 1; x++) {
+        let runA = -1;
+        const flush = (ey) => { if (runA >= 0) segs.push([x * T, runA * T, x * T, ey * T]); runA = -1; };
+        for (let y = y0; y <= y1 + 1; y++) {
+          const left = y <= y1 && x <= x1 && opaque(x, y) && !opaque(x - 1, y) && lx < x * T;
+          const right = y <= y1 && x - 1 >= x0 && opaque(x - 1, y) && !opaque(x, y) && lx > x * T;
+          const on = left || right;
+          if (on && runA < 0) runA = y; if (!on && runA >= 0) flush(y);
+        }
+        flush(y1 + 1);
+      }
+      const bx0 = lx - r, by0 = ly - r, bx1 = lx + r, by1 = ly + r;
+      segs.push([bx0, by0, bx1, by0], [bx1, by0, bx1, by1], [bx1, by1, bx0, by1], [bx0, by1, bx0, by0]);
+      const angles = [];
+      for (const [ax, ay, bx, by] of segs) for (const [px, py] of [[ax, ay], [bx, by]]) {
+        const a = Math.atan2(py - ly, px - lx); angles.push(a - 0.0004, a, a + 0.0004);
+      }
+      const pts = [];
+      for (const a of angles) {
+        const dx = Math.cos(a), dy = Math.sin(a); let best = Infinity;
+        for (const [ax, ay, bx, by] of segs) {
+          const sx = bx - ax, sy = by - ay, den = dx * sy - dy * sx; if (Math.abs(den) < 1e-9) continue;
+          const t = ((ax - lx) * sy - (ay - ly) * sx) / den, u = ((ax - lx) * dy - (ay - ly) * dx) / den;
+          if (t > 0 && u >= -1e-6 && u <= 1 + 1e-6 && t < best) best = t;
+        }
+        if (best < Infinity) { const ext = best + 3; pts.push([a, lx + dx * ext, ly + dy * ext]); }
+      }
+      pts.sort((p, q) => p[0] - q[0]);
+      return pts;
+    }
+    // blocked: hangi karoların geçilemez olduğu (varsayılan: duvarlar; Gölgeler için enemyWall)
+    function bfs(sx, sy, tx, ty, blocked = wall) {
       if (sx === tx && sy === ty) return [];
       const prev = new Int16Array(ROWS * COLS).fill(-1), start = sy * COLS + sx, q = [start]; prev[start] = start;
       for (let h = 0; h < q.length; h++) {
         const c = q[h], x = c % COLS, y = (c / COLS) | 0;
         if (x === tx && y === ty) { const path = []; let k = c; while (k !== start) { path.push([k % COLS, (k / COLS) | 0]); k = prev[k]; } return path.reverse(); }
-        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy, ni = ny * COLS + nx; if (!wall(nx, ny) && prev[ni] < 0) { prev[ni] = c; q.push(ni); } }
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy, ni = ny * COLS + nx; if (!blocked(nx, ny) && prev[ni] < 0) { prev[ni] = c; q.push(ni); } }
       }
       return [];
     }
-    return { M, ROWS, COLS, wall, solidAt, collide, move, los, bfs, C, tileOf, dist };
+    // (sx,sy)'den her karoya adım sayısı (ulaşılamayanlar -1)
+    function bfsField(sx, sy, blocked = wall) {
+      const d = new Int16Array(ROWS * COLS).fill(-1), q = [sy * COLS + sx]; d[q[0]] = 0;
+      for (let h = 0; h < q.length; h++) {
+        const c = q[h], x = c % COLS, y = (c / COLS) | 0;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy, ni = ny * COLS + nx; if (!blocked(nx, ny) && d[ni] < 0) { d[ni] = d[c] + 1; q.push(ni); } }
+      }
+      return d;
+    }
+    function setLevel(L) { M = L.map; ROWS = M.length; COLS = M[0].length; forbidden = new Uint8Array(ROWS * COLS); }
+    // yanan lambaların çevresindeki 3×3 karoyu yasakla
+    function setLights(lamps) {
+      forbidden.fill(0);
+      for (const l of lamps) if (l.lit) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const x = l.cx + dx, y = l.cy + dy; if (x >= 0 && y >= 0 && x < COLS && y < ROWS) forbidden[y * COLS + x] = 1; }
+    }
+    return {
+      get M() { return M; }, get ROWS() { return ROWS; }, get COLS() { return COLS; },
+      wall, opaque, enemyWall, isForbidden, solidAt, collide, move, los, visPoly, bfs, bfsField, C, tileOf, dist, setLevel, setLights,
+    };
   })();
 })();
