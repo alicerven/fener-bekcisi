@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#05070f">
+<title>Fener Bekçisi · The Lighthouse Keeper</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="stage">
+  <canvas id="cv" width="384" height="224"></canvas>
+
+  <!-- oyun içi arayüz -->
+  <div id="hud" hidden>
+    <div class="row"><span id="hud-hearts" class="hearts"></span><span id="hud-shards" class="shards"></span></div>
+    <div id="hud-quest" class="quest"></div>
+  </div>
+  <div id="ai-panel" hidden></div>
+  <div id="prompt" hidden></div>
+  <div id="toast" hidden></div>
+  <div id="dialog" hidden><div class="who"></div><div class="text"></div><div class="hint"></div></div>
+
+  <!-- ekranlar -->
+  <div id="scr-menu" class="screen">
+    <div class="panel">
+      <h1 data-i18n="title"></h1>
+      <p class="sub" data-i18n="subtitle"></p>
+      <button id="btn-start" class="primary" data-i18n="start"></button>
+      <div class="opts">
+        <button id="btn-lang" class="opt"></button>
+        <button id="btn-sound" class="opt"></button>
+      </div>
+      <p class="controls" id="menu-controls"></p>
+      <p class="credits" data-i18n="credits"></p>
+    </div>
+  </div>
+  <div id="scr-pause" class="screen" hidden>
+    <div class="panel">
+      <h2 data-i18n="paused"></h2>
+      <button id="btn-resume" class="primary" data-i18n="resume"></button>
+      <button id="btn-restart" data-i18n="restart"></button>
+      <div class="opts">
+        <button id="btn-lang2" class="opt"></button>
+        <button id="btn-sound2" class="opt"></button>
+        <button id="btn-ai" class="opt"></button>
+      </div>
+      <button id="btn-menu" data-i18n="menu"></button>
+    </div>
+  </div>
+  <div id="scr-end" class="screen" hidden>
+    <div class="panel">
+      <h2 id="end-title"></h2>
+      <p class="sub" id="end-sub"></p>
+      <button id="btn-again" class="primary" data-i18n="playAgain"></button>
+      <button id="btn-menu2" data-i18n="menu"></button>
+    </div>
+  </div>
+  <div id="scr-loading" class="screen"><div class="panel"><p data-i18n="loading">Yükleniyor…</p></div></div>
+
+  <!-- dokunmatik kontroller -->
+  <div id="touch" hidden>
+    <div id="joy"><div id="knob"></div></div>
+    <button id="btn-act">E</button>
+    <button id="btn-pause" aria-label="pause">❚❚</button>
+  </div>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/lines.js"></script>
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/game.js"></script>
+<script src="js/render.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
